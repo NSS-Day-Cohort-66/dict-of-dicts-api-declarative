@@ -1,11 +1,15 @@
 {
-    "saveAndRunExt": {
-        "commands": [
-            {
-                "match": "\\.(py$)",
-                "isShellCommand": false,
-                "cmd": "workbench.action.debug.restart"
-            }
-        ]
-    }
+  "saveAndRunExt": {
+    "commands": [
+      {
+        "match": "\\.(py$)",
+        "isShellCommand": false,
+        "cmd": "workbench.action.debug.restart"
+      }
+    ]
+  },
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.autopep8"
+  },
+  "python.formatting.provider": "none"
 }

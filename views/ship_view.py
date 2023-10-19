@@ -46,3 +46,17 @@ class ShippingShipsView():
             return handler.response("", status.HTTP_204_SUCCESS_NO_RESPONSE_BODY.value)
         else:
             return handler.response("", status.HTTP_404_CLIENT_ERROR_RESOURCE_NOT_FOUND.value)
+        
+    def create(self, handler, ship_data):
+        sql = """
+        INSERT INTO Ship Values(null, ?, ?)
+        """
+        number_of_rows_created = db_create(
+            sql,
+            (ship_data['name'], ship_data['hauler_id'])
+        )
+
+        if number_of_rows_created > 0:
+            return handler.response("", status.HTTP_201_SUCCESS_CREATED.value)
+        else:
+            return handler.response("", status.HTTP_400_CLIENT_ERROR_BAD_REQUEST_DATA.value)      
