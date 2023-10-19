@@ -29,17 +29,19 @@ class JSONServer(HandleRequests):
 
     def do_POST(self):
         # Parse the URL
-
+        url = self.parse_url(self.path)
         # Determine the correct view needed to handle the requests
+        view = self.determine_view(url)
 
         # Get the request body
-
+        try:
         # Invoke the correct method on the view
+            view.create(self, self.get_request_body())
 
         # Make sure you handle the AttributeError in case the client requested a route that you don't support
-
+        except AttributeError:
         # Once you implement this method, delete the following line of code
-        return self.response("", status.HTTP_405_UNSUPPORTED_METHOD.value)
+            return self.response("", status.HTTP_405_UNSUPPORTED_METHOD.value)
 
     def do_DELETE(self):
         url = self.parse_url(self.path)
