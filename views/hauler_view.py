@@ -7,9 +7,31 @@ class HaulerView():
 
     def get(self, handler, pk):
         if pk != 0:
-            sql = "SELECT h.id, h.name, h.dock_id FROM Hauler h WHERE h.id = ?"
+            sql = """SELECT
+                        h.id, 
+                        h.name, 
+                        h.dock_id,
+                        d.id,
+                        d.location,
+                        d.capacity
+                    FROM Hauler h 
+                    JOIN Dock d 
+                    ON h.dock_id = d.id
+                    WHERE h.id = ? """
             query_results = db_get_single(sql, pk)
-            serialized_hauler = json.dumps(dict(query_results))
+            if query_results:
+                hauler = dict(query_results)
+                dock_info = {
+                    "id": hauler["dock_id"],
+                    "location": hauler["location"],
+                    "capacity": hauler["capacity"]
+                }
+                hauler["dock"] = dock_info
+                
+                del hauler["location"]
+                del hauler["capacity"]
+                serialized_hauler = json.dumps(hauler)
+            
 
             return handler.response(serialized_hauler, status.HTTP_200_SUCCESS.value)
         else:
