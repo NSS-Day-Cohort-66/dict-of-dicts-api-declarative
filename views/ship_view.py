@@ -7,17 +7,64 @@ class ShippingShipsView():
 
     def get(self, handler, pk):
         if pk != 0:
-            sql = "SELECT s.id, s.name, s.hauler_id FROM Ship s WHERE s.id = ?"
+            sql = """SELECT
+                        s.id, 
+                        s.name, 
+                        s.hauler_id,
+                        h.id haulerId,
+                        h.name haulerName,
+                        h.dock_id
+                    FROM Ship s 
+                    JOIN Hauler h 
+                    ON s.hauler_id = h.id
+                    WHERE s.hauler_id = ? """
             query_results = db_get_single(sql, pk)
-            serialized_hauler = json.dumps(dict(query_results))
+            if query_results:
+                ship = dict(query_results)
+                hauler = {
+                "id": query_results['haulerId'],
+                "name": query_results['haulerName'],
+                "dock_id": query_results["dock_id"]
+                }
+                ship = {
+                    "id": query_results['id'],
+                    "name": query_results['name'],
+                    "hauler_id": query_results["hauler_id"],
+                    "hauler": hauler
+                }
+                serialized_hauler = json.dumps(ship)
+            # serialized_hauler = json.dumps(dict(query_results))
 
             return handler.response(serialized_hauler, status.HTTP_200_SUCCESS.value)
         else:
 
-            sql = "SELECT s.id, s.name, s.hauler_id FROM Ship s"
+            sql = """SELECT
+                        s.id, 
+                        s.name, 
+                        s.hauler_id,
+                        h.id haulerId,
+                        h.name haulerName,
+                        h.dock_id
+                    FROM Ship s 
+                    JOIN Hauler h 
+                    ON s.hauler_id = h.id
+                    """
             query_results = db_get_all(sql)
-            haulers = [dict(row) for row in query_results]
-            serialized_haulers = json.dumps(haulers)
+            ships = []
+            for row in query_results:
+                hauler = {
+                "id": row['haulerId'],
+                "name": row['haulerName'],
+                "dock_id": row["dock_id"]
+                }
+                ship = {
+                    "id": row['id'],
+                    "name": row['name'],
+                    "hauler_id": row["hauler_id"],
+                    "hauler": hauler
+                }
+                ships.append(ship)
+            serialized_haulers = json.dumps(ships)
 
             return handler.response(serialized_haulers, status.HTTP_200_SUCCESS.value)
 
