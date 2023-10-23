@@ -36,20 +36,10 @@ class ShippingShipsView():
                     serialized_hauler = json.dumps(ship)
 
             else:
-                sql = """SELECT
-                        s.id,
-                        s.name,
-                        s.hauler_id
-                    FROM Ship s
-                    WHERE s.id = ?
-                    """
+                sql = """SELECT * FROM Ship s WHERE s.id = ?"""
                 query_results = db_get_single(sql, url["pk"])
                 if query_results:
-                    ship = {
-                        "id": query_results["id"],
-                        "name": query_results["name"],
-                        "hauler_id": query_results["hauler_id"]
-                    }
+                    ship = dict(query_results)
                     serialized_hauler = json.dumps(ship)
             return handler.response(serialized_hauler, status.HTTP_200_SUCCESS.value)
         else:
@@ -83,14 +73,11 @@ class ShippingShipsView():
                 serialized_haulers = json.dumps(ships)
 
             else:
+                sql = """SELECT * FROM Ship"""
                 query_results = db_get_all(sql)
                 ships = []
                 for row in query_results:
-                    ship = {
-                        "id": row["id"],
-                        "name": row["name"],
-                        "hauler_id": row["hauler_id"]
-                    }
+                    ship = dict(row)
                     ships.append(ship)
                 serialized_haulers = json.dumps(ships)
             return handler.response(serialized_haulers, status.HTTP_200_SUCCESS.value)
