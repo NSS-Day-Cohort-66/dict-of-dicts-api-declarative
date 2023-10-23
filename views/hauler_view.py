@@ -36,9 +36,32 @@ class HaulerView():
             return handler.response(serialized_hauler, status.HTTP_200_SUCCESS.value)
         else:
 
-            sql = "SELECT h.id, h.name, h.dock_id FROM Hauler h"
+            sql = """SELECT
+                        h.id, 
+                        h.name, 
+                        h.dock_id,
+                        d.id,
+                        d.location,
+                        d.capacity
+                    FROM Hauler h 
+                    JOIN Dock d 
+                    ON h.dock_id = d.id
+                    """
             query_results = db_get_all(sql)
-            haulers = [dict(row) for row in query_results]
+            haulers = []
+            for row in query_results:
+                dock = {
+                    "id": row["dock_id"],
+                    "location": row["location"],
+                    "capacity": row["capacity"]
+                }
+                hauler = {
+                    "id": row['id'],
+                    "name": row['name'],
+                    "dock_id": row["dock_id"],
+                    "dock": dock
+                }
+                haulers.append(hauler)
             serialized_haulers = json.dumps(haulers)
 
             return handler.response(serialized_haulers, status.HTTP_200_SUCCESS.value)
