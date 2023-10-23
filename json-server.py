@@ -14,7 +14,7 @@ class JSONServer(HandleRequests):
         view = self.determine_view(url)
 
         try:
-            view.get(self, url["pk"])
+            view.get(self, url)
         except AttributeError:
             return self.response("No view for that route", status.HTTP_404_CLIENT_ERROR_RESOURCE_NOT_FOUND.value)
 
@@ -35,12 +35,12 @@ class JSONServer(HandleRequests):
 
         # Get the request body
         try:
-        # Invoke the correct method on the view
+            # Invoke the correct method on the view
             view.create(self, self.get_request_body())
 
         # Make sure you handle the AttributeError in case the client requested a route that you don't support
         except AttributeError:
-        # Once you implement this method, delete the following line of code
+            # Once you implement this method, delete the following line of code
             return self.response("", status.HTTP_405_UNSUPPORTED_METHOD.value)
 
     def do_DELETE(self):
@@ -51,17 +51,6 @@ class JSONServer(HandleRequests):
             view.delete(self, url["pk"])
         except AttributeError:
             return self.response("No view for that route", status.HTTP_404_CLIENT_ERROR_RESOURCE_NOT_FOUND.value)
-
-
-
-
-
-
-
-
-
-
-
 
     def determine_view(self, url):
         """Lookup the correct view class to handle the requested route
@@ -85,12 +74,6 @@ class JSONServer(HandleRequests):
             return status.HTTP_404_CLIENT_ERROR_RESOURCE_NOT_FOUND.value
 
 
-
-
-
-
-
-
 #
 # THE CODE BELOW THIS LINE IS NOT IMPORTANT FOR REACHING YOUR LEARNING OBJECTIVES
 #
@@ -98,6 +81,7 @@ def main():
     host = ''
     port = 8000
     HTTPServer((host, port), JSONServer).serve_forever()
+
 
 if __name__ == "__main__":
     main()
