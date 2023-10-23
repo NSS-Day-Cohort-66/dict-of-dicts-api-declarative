@@ -65,3 +65,14 @@ SELECT
 	d.location,
 	d.capacity
 FROM Hauler h JOIN Dock d ON h.dock_id = d.id 
+
+SELECT
+                        s.id, 
+                        s.name, 
+                        s.hauler_id,
+                        h.id,
+                        h.name,
+                        h.dock_id
+                    FROM Ship s 
+                    JOIN Hauler h 
+                    ON s.hauler_id = h.id
