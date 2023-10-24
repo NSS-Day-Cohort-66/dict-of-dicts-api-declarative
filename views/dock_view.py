@@ -4,8 +4,8 @@ from repository import db_get_single, db_get_all, db_delete, db_update, db_creat
 
 class DocksView():
 
-    def get(self, handler, pk):
-        if pk != 0:
+    def get(self, handler, url):
+        if url["pk"] != 0:
             sql = """
             SELECT
                 d.id,
@@ -14,7 +14,7 @@ class DocksView():
             FROM Dock d
             WHERE d.id = ?
             """
-            query_results = db_get_single(sql, pk)
+            query_results = db_get_single(sql, url["pk"])
             serialized_hauler = json.dumps(dict(query_results))
 
             return handler.response(serialized_hauler, status.HTTP_200_SUCCESS.value)
