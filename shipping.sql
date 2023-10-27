@@ -65,6 +65,7 @@ SELECT
                         h.name,
                         h.dock_id
                     FROM Dock d 
-                    JOIN Hauler h 
+                    LEFT JOIN Hauler h 
                     ON d.id = h.dock_id
+				 	
             

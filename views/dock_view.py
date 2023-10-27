@@ -1,56 +1,91 @@
 import json
 from nss_handler import status
-from repository import db_get_single, db_get_all, db_delete, db_update, db_create
+from repository import db_get_single, db_get_all, db_delete, db_update, db_create, db_get_multiple
+
 
 class DocksView():
 
     def get(self, handler, url):
         if url["pk"] != 0:
-            sql = """
-            SELECT
-                d.id,
-                d.location,
-                d.capacity
-            FROM Dock d
-            WHERE d.id = ?
-            """
-            query_results = db_get_single(sql, url["pk"])
-            serialized_hauler = json.dumps(dict(query_results))
-
-            return handler.response(serialized_hauler, status.HTTP_200_SUCCESS.value)
-        else:
-
-            query_results = db_get_all(sql = """
-            SELECT
-                        d.id dockId, 
-                        d.location, 
-                        d.capacity,
-                        h.id,
-                        h.name,
-                        h.dock_id
-                    FROM Dock d 
-                    JOIN Hauler h 
-                    ON d.id = h.dock_id
-            """)
-            docks = {} #! initializes the empty dictionary
-            for row in query_results:
-                dock_id = row["dockId"]
-                if dock_id not in docks:
-                    docks[dock_id] = {
-                        "id": row['dockId'],
-                        "location": row['location'],
-                        "capacity": row["capacity"],
-                        "haulers": []
+            if url['query_params'] == {'_embed': ['hauler']}:
+                sql = """
+                SELECT
+                                d.id dockId, 
+                                d.location, 
+                                d.capacity,
+                                h.id,
+                                h.name,
+                                h.dock_id
+                            FROM Dock d 
+                            JOIN Hauler h 
+                            ON d.id = h.dock_id
+                            WHERE d.id = ?
+                """
+                query_results = db_get_multiple(sql, url["pk"])
+                dock = {}
+                for row in query_results:
+                    dock_id = row["dockId"]
+                    if dock_id not in dock:
+                        dock[dock_id] = {
+                            "id": row['dockId'],
+                            "location": row['location'],
+                            "capacity": row["capacity"],
+                            "haulers": []
+                        }
+                    hauler = {
+                        "id": row['id'],
+                        "name": row['name'],
+                        "dock_id": row["dock_id"],
                     }
-                hauler = {
-                "id": row['id'],
-                "name": row['name'],
-                "dock_id": row["dock_id"],
-            }
-                docks[dock_id]["haulers"].append(hauler)
-            serialized_haulers = json.dumps(list(docks.values()))
+                    dock[dock_id]["haulers"].append(hauler)
+                serialized_dock = json.dumps(list(dock.values()))
+            else:
+                query_results = db_get_single(
+                    """SELECT * FROM Dock d WHERE d.id = ?""", url["pk"])
+                dock = dict(query_results)
+                serialized_dock = json.dumps(dock)
+            return handler.response(serialized_dock, status.HTTP_200_SUCCESS.value)
+        else:
+            if url['query_params'] == {'_embed': ['hauler']}:
+                query_results = db_get_all(
+                    sql="""
+                        SELECT
+                                d.id dockId, 
+                                d.location, 
+                                d.capacity,
+                                h.id,
+                                h.name,
+                                h.dock_id
+                            FROM Dock d 
+                            JOIN Hauler h 
+                            ON d.id = h.dock_id
+                """)
+                docks = {}  # ! initializes the empty dictionary
+                for row in query_results:
+                    dock_id = row["dockId"]
+                    if dock_id not in docks:
+                        docks[dock_id] = {
+                            "id": row['dockId'],
+                            "location": row['location'],
+                            "capacity": row["capacity"],
+                            "haulers": []
+                        }
+                    hauler = {
+                        "id": row['id'],
+                        "name": row['name'],
+                        "dock_id": row["dock_id"],
+                    }
+                    docks[dock_id]["haulers"].append(hauler)
+                serialized_docks = json.dumps(list(docks.values()))
 
-            return handler.response(serialized_haulers, status.HTTP_200_SUCCESS.value)
+            else:
+                query_results = db_get_all(sql="""SELECT * FROM Dock""")
+                docks = []
+                for row in query_results:
+                    dock = dict(row)
+                    docks.append(dock)
+                serialized_docks = json.dumps(docks)
+            return handler.response(serialized_docks, status.HTTP_200_SUCCESS.value)
 
     def delete(self, handler, pk):
         number_of_rows_deleted = db_delete("DELETE FROM Dock WHERE id = ?", pk)
