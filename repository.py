@@ -18,12 +18,20 @@ def db_get_single(sql, pk) -> sqlite3.Row:
         return db_cursor.fetchone()
 
 
+def db_get_multiple(sql, pk) -> list:
+    with sqlite3.connect("./shipping.db") as conn:
+        conn.row_factory = sqlite3.Row
+        db_cursor = conn.cursor()
+        db_cursor.execute(sql, (pk,))
+        return db_cursor.fetchall()
+
+
 def db_get_all(sql) -> list:
     """Retrieve all rows from a database table
 
     Args:
         sql (string): SQL string
-
+        pk (integer): primary key
     Returns:
         list: List of sqlite3.Row objects
     """
@@ -66,6 +74,7 @@ def db_update(sql, data_tuple) -> int:
         db_cursor = conn.cursor()
         db_cursor.execute(sql, data_tuple)
         return db_cursor.rowcount
+
 
 def db_create(sql, data_tuple) -> int:
     """Create a row in a database table

@@ -57,33 +57,15 @@ INSERT INTO `Ship` VALUES (null, "Kunde", 6);
 INSERT INTO `Ship` VALUES (null, "Hermiston", 5);
 -- End block
 
-SELECT 
-	h.id, 
-	h.name, 
-	h.dock_id,
-	d.id,
-	d.location,
-	d.capacity
-FROM Hauler h JOIN Dock d ON h.dock_id = d.id 
-
 SELECT
-                        s.id, 
-                        s.name, 
-                        s.hauler_id,
-                        h.id,
-                        h.name,
-                        h.dock_id
-                    FROM Ship s 
-                    JOIN Hauler h 
-                    ON s.hauler_id = h.id
-
-SELECT
-                        d.id, 
+                        d.id dockId, 
                         d.location, 
                         d.capacity,
                         h.id,
                         h.name,
                         h.dock_id
                     FROM Dock d 
-                    JOIN Hauler h 
+                    LEFT JOIN Hauler h 
                     ON d.id = h.dock_id
+				 	
+            
